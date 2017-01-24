@@ -22,6 +22,7 @@ The last reason is that I needed a reason to immerge myself in the linux kernel 
 - Notification when asking for autorisation, no more dialog popping
 - Fixing init scripts for systemd
 - Removing the twitter part
+- Adavanced mode with ability to choose ip to allow or deny for each app
 
 And probably many more.
 
@@ -29,4 +30,3 @@ And probably many more.
 ### Licencing
 
 The entire project is 100% open source under the GPL v2 licence.
-
