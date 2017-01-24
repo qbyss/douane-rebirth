@@ -15,7 +15,6 @@ SDIR = src
 
 OBJS= $(patsubst %,$(ODIR)/%, $(_OBJS))
 
-
 _OBJS=freedesktop/desktop_file.o \
 	freedesktop/desktop_files.o \
 	dbus/dbus_server.o \
@@ -54,5 +53,5 @@ install: $(EXEC)
 	test -d $(DESTDIR)/etc/init.d/ || mkdir -p $(DESTDIR)/etc/init.d/
 	test -d $(DESTDIR)/etc/dbus-1/system.d/ || mkdir -p $(DESTDIR)/etc/dbus-1/system.d/
 	install -m 0500 $(EXEC) $(BINDIR)
-	install -m 0755 init.d/douane $(DESTDIR)/etc/init.d/
-	install -m 0644 system.d/org.zedroot.Douane.conf $(DESTDIR)/etc/dbus-1/system.d/
+	install -m 0755 src/init.d/douane $(DESTDIR)/etc/init.d/
+	install -m 0644 src/system.d/org.zedroot.Douane.conf $(DESTDIR)/etc/dbus-1/system.d/
