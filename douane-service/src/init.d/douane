@@ -1,11 +1,11 @@
 #!/bin/bash
 #
 # douane      This shell script takes care of starting and stopping
-#             douane daemon (A modern firewall at application layer)
+#             douane service (A modern firewall at application layer)
 #
-# Author: Guillaume Hain zedtux@zedroot.org
+# Author: qbyss (qbyss@spher.net)
 #
-# description: douane is the daemon process of the Douane firewall application. \
+# description: douane is the service of the Douane firewall application. \
 # This firewall is limiting access to the internet on application bases.
 
 # Source function library.
@@ -13,42 +13,50 @@
 
 NAME=douaned
 DOUANEDIR=/opt/douane
-DAEMON=$DOUANEDIR/$NAME
-PIDDIR=$DOUANEDIR/pids
+SERVICE=$DOUANEDIR/$NAME
+PIDDIR=/var/run/
 PIDFILE=$PIDDIR/$NAME.pid
 DOUANEOPTIONS="-D"
 
+start()
+{
+    echo $"Starting the $NAME service..."
+    # Checking if the kernel module is loaded into memory
+    [[ -z "$(lsmod | grep douane)" ]] && modprobe douane
+    # Creating the pids folder if not existing
+    if [ ! -e $PIDDIR ]; then
+        mkdir $PIDDIR
+        chown root $PIDDIR
+    fi
+
+    # TODO: Find a better way to start service on fedora
+    $SERVICE $DOUANEOPTIONS & echo $! > $PIDFILE
+}
+
+stop()
+{
+  echo $"Stopping $NAME service..."
+  kill `cat $PIDFILE`
+
+  # Remove PID file fs remaining
+  [[ -a $PIDFILE ]] && rm $PIDFILE
+}
+
 case "$1" in
     start)
-        log_daemon_msg "Starting the $NAME daemon"
-        # Load kernel module if not already loaded
-        [[ -z "$(lsmod | grep douane)" ]] && modprobe douane
-        # Creating the pids folder is not existing
-        if [ ! -e $PIDDIR ]; then
-            mkdir $PIDDIR
-            chown root $PIDDIR
-        fi
-        FULL_COMMAND="start-stop-daemon --start --oknodo --startas $DAEMON --make-pidfile --background --umask 0 --nicelevel -20 --pidfile $PIDFILE -- $DOUANEOPTIONS"
-        [[ x"$DAEMON_USER" != x ]] && sudo -u $DAEMON_USER $FULL_COMMAND || $FULL_COMMAND
-        log_end_msg $?
+        start
         ;;
     stop)
-        log_daemon_msg "Stopping $NAME daemon"
-        start-stop-daemon --retry 30 --stop --pidfile $PIDFILE
-        # Remove PID file is remaining
-        [[ -a $PIDFILE ]] && rm $PIDFILE
-        log_end_msg $?
+        stop
         ;;
     status)
-        status_of_proc $DAEMON $NAME
         ;;
     restart)
         stop
         start
         ;;
     *)
-        echo "Unknown argument -- $1"
-        echo "Usage:  {start|stop|status|restart}"
+        echo "Usage:  {start|stop|restart}"
         exit 1
         ;;
 esac
