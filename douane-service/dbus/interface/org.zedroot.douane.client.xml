@@ -1,0 +1,17 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node name="/org/zedroot/Douane">
+  <interface name="org.zedroot.Douane">
+  	<!-- Properties -->
+    <property name="DaemonVersion" type="s" access="read"/>
+    <!-- Methods -->
+    <method name="CreateRule">
+      <arg type="s" name="rule_id" direction="in"/>
+      <arg type="b" name="allow" direction="in"/>
+    </method>
+    <!-- Signals -->
+    <signal name="NewActivityToBeValidated">
+      <arg type="(ssss)" name="activity"/>
+    </signal>
+  </interface>
+</node>
