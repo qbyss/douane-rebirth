@@ -26,48 +26,48 @@ public:
         register_method(Douane_adaptor, CreateRule, _CreateRule_stub);
     }
 
-    ::DBus::IntrospectedInterface *introspect() const 
+    ::DBus::IntrospectedInterface *introspect() const
     {
-        static ::DBus::IntrospectedArgument GetRules_args[] = 
+        static ::DBus::IntrospectedArgument GetRules_args[] =
         {
             { "rules", "a(ssb)", false },
             { 0, 0, 0 }
         };
-        static ::DBus::IntrospectedArgument DeleteRule_args[] = 
+        static ::DBus::IntrospectedArgument DeleteRule_args[] =
         {
             { "rule_id", "s", true },
             { "result", "b", false },
             { 0, 0, 0 }
         };
-        static ::DBus::IntrospectedArgument CreateRule_args[] = 
+        static ::DBus::IntrospectedArgument CreateRule_args[] =
         {
             { "rule_id", "s", true },
             { "allow", "b", true },
             { 0, 0, 0 }
         };
-        static ::DBus::IntrospectedArgument NewActivityToBeValidated_args[] = 
+        static ::DBus::IntrospectedArgument NewActivityToBeValidated_args[] =
         {
             { "activity", "(ssss)", false },
             { 0, 0, 0 }
         };
-        static ::DBus::IntrospectedMethod Douane_adaptor_methods[] = 
+        static ::DBus::IntrospectedMethod Douane_adaptor_methods[] =
         {
             { "GetRules", GetRules_args },
             { "DeleteRule", DeleteRule_args },
             { "CreateRule", CreateRule_args },
             { 0, 0 }
         };
-        static ::DBus::IntrospectedMethod Douane_adaptor_signals[] = 
+        static ::DBus::IntrospectedMethod Douane_adaptor_signals[] =
         {
             { "NewActivityToBeValidated", NewActivityToBeValidated_args },
             { 0, 0 }
         };
-        static ::DBus::IntrospectedProperty Douane_adaptor_properties[] = 
+        static ::DBus::IntrospectedProperty Douane_adaptor_properties[] =
         {
             { "DaemonVersion", "s", true, false },
             { 0, 0, 0, 0 }
         };
-        static ::DBus::IntrospectedInterface Douane_adaptor_interface = 
+        static ::DBus::IntrospectedInterface Douane_adaptor_interface =
         {
             "org.zedroot.Douane",
             Douane_adaptor_methods,
@@ -111,7 +111,7 @@ private:
      */
     ::DBus::Message _GetRules_stub(const ::DBus::CallMessage &call)
     {
-        ::DBus::MessageIter ri = call.reader();
+        //::DBus::MessageIter ri = call.reader();
 
         std::vector< ::DBus::Struct< std::string, std::string, bool > > argout1 = GetRules();
         ::DBus::ReturnMessage reply(call);
@@ -142,5 +142,5 @@ private:
     }
 };
 
-} } 
+} }
 #endif //__dbusxx__org_zedroot_douane_adaptor_h__ADAPTOR_MARSHAL_H
