@@ -23,6 +23,7 @@ The last reason is that I needed a reason to immerge myself in the linux kernel 
 - Fixing init scripts for systemd
 - Removing the twitter part
 - Adavanced mode with ability to choose ip to allow or deny for each app
+- Ability to block or allow a program from command line
 
 And probably many more.
 
