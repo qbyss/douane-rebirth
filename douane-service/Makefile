@@ -5,22 +5,22 @@ PKGCONFIG=`pkg-config --cflags --libs liblog4cxx dbus-c++-1`
 CFLAGS=-pedantic -Wall -W -g $(PKGCONFIG) -DDOUANE_VERSION=\"$(DAEMON_VERSION)\"
 LDFLAGS=$(PKGCONFIG) -lboost_signals -lboost_system -lboost_filesystem -lboost_regex -lcrypto -lpthread
 
-OBJ=freedesktop/desktop_file.o \
-	freedesktop/desktop_files.o \
-	dbus/dbus_server.o \
-	dbus/douane.o \
-	main.o \
-	netlink_listener.o \
-	netlink_message_handler.o \
-	netlink_socket.o \
-	network_activity.o \
-	process.o \
-	processes_manager.o \
-	rule.o \
-	rules_manager.o \
-	socket.o \
-	thread.o \
-	tools.o
+OBJ=src/freedesktop/desktop_file.o \
+	src/freedesktop/desktop_files.o \
+	src/dbus/dbus_server.o \
+	src/dbus/douane.o \
+	src/main.o \
+	src/netlink_listener.o \
+	src/netlink_message_handler.o \
+	src/netlink_socket.o \
+	src/network_activity.o \
+	src/process.o \
+	src/processes_manager.o \
+	src/rule.o \
+	src/rules_manager.o \
+	src/socket.o \
+	src/thread.o \
+	src/tools.o
 
 INSTALL=/usr/bin/install -c
 BINDIR=$(DESTDIR)/opt/douane
