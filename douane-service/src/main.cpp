@@ -19,6 +19,7 @@
 #include "processes_manager.h"
 #include "dbus/dbus_server.h"
 #include "service.h"
+#include "log.h"
 
 // In the case the Makefile didn't initialized the VERSION variable
 // this code initialize it to "UNKNOWN"
@@ -33,8 +34,6 @@ bool          service_mode = false;
 const char *  pid_file_path = "/var/run/douaned.pid";
 const char *  log_file_path = "/var/log/douane.log";
 
-// Initialize the logger for the current file
-log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("Main");
 
 /* Global initialization
 **
@@ -48,7 +47,7 @@ NetlinkListener netlink_listener;   // TODO: Better in dynamic ?
 */
 void handler(int sig)
 {
-    LOG4CXX_INFO(logger, "Exiting Douane with signal " << sig << "...");
+    // LOG4CXX_INFO(logger, "Exiting Douane with signal " << sig << "...");
     netlink_listener.say_goodbye();
     exit(1);
 }
@@ -162,13 +161,14 @@ void do_from_options(std::string option, const char * optarg)
 
 int main(int argc, char * argv[])
 {
+    Log l();
     Service *s = new Service();
 
-  // CTRL + C catcher
-  signal(SIGINT, handler);
+    // CTRL + C catcher
+    signal(SIGINT, handler);
 
-  // Force the nice value to -20 (urgent)
-  nice(-20);
+    // Force the nice value to -20 (urgent)
+    nice(-20);
 
   /*
   **  Application options handling with long options support.
@@ -218,31 +218,12 @@ int main(int argc, char * argv[])
     }
   }
 
-  /*
-  **  log4cxx configuration
-  *
-  *  Appending logs to the file /var/log/douane.log
-  */
-  log4cxx::PatternLayoutPtr pattern = new log4cxx::PatternLayout(
-    enabled_debug ? "%d{dd/MM/yyyy HH:mm:ss} | daemon | %5p | [%F::%c:%L]: %m%n" : "%d{dd/MM/yyyy HH:mm:ss} %5p: %m%n"
-  );
-
-  log4cxx::FileAppender * fileAppender = new log4cxx::FileAppender(
-    log4cxx::LayoutPtr(pattern),
-    log_file_path
-  );
-
-  log4cxx::helpers::Pool pool;
-  fileAppender->activateOptions(pool);
-  log4cxx::BasicConfigurator::configure(log4cxx::AppenderPtr(fileAppender));
-  log4cxx::Logger::getRootLogger()->setLevel(enabled_debug ? log4cxx::Level::getDebug() : log4cxx::Level::getInfo());
-
   try {
     // Daemonize the application if --daemon argument is passed
     if (service_mode)
     {
       do_service();
-      LOG4CXX_INFO(logger, "A service has been created");
+    //   LOG4CXX_INFO(logger, "A service has been created");
     }
 
     //if (has_to_write_pid_file)
@@ -251,11 +232,11 @@ int main(int argc, char * argv[])
     //  LOG4CXX_INFO(logger, "A pid file with PID " << getpid() << " is created at " << pid_file_path);
     //}
 
-    LOG4CXX_INFO(logger, "The log file is " << log_file_path);
+    // LOG4CXX_INFO(logger, "The log file is " << log_file_path);
 
     if (enabled_debug)
     {
-      LOG4CXX_DEBUG(logger, "Debug mode is enabled");
+    //   LOG4CXX_DEBUG(logger, "Debug mode is enabled");
     }
 
     /*
@@ -277,7 +258,7 @@ int main(int argc, char * argv[])
     ** ~~~~ Signal connexions ~~~~
     */
 
-    LOG4CXX_DEBUG(logger, "Connecting objects");
+    // LOG4CXX_DEBUG(logger, "Connecting objects");
     // When NetlinkListener emit connected_to_kernel_module signal then fire RulesManager::push_rules
     netlink_listener.on_connected_to_kernel_module_connect(boost::bind(&RulesManager::push_rules, &rules_manager));
 
@@ -315,22 +296,22 @@ int main(int argc, char * argv[])
     *  The NetlinkListener is the core of the daemon.
     *  This means that the following start() method is the method which will runs until the daemon has to die.
     */
-    LOG4CXX_DEBUG(logger, "Starting to listen to LKM. Service running.");
+    // LOG4CXX_DEBUG(logger, "Starting to listen to LKM. Service running.");
     netlink_listener.start();
 
-    LOG4CXX_DEBUG(logger, "Service exit");
+    // LOG4CXX_DEBUG(logger, "Service exit");
 
     return s->run();
     //return EXIT_SUCCESS;
 
   } catch(const std::exception &e)
   {
-    LOG4CXX_ERROR(logger, e.what());
+    // LOG4CXX_ERROR(logger, e.what());
   } catch (const std::string &e)
   {
-    LOG4CXX_ERROR(logger, e);
+    // LOG4CXX_ERROR(logger, e);
   } catch(...)
   {
-    LOG4CXX_ERROR(logger, "Unknown error occured!");
+    // LOG4CXX_ERROR(logger, "Unknown error occured!");
   }
 }

@@ -1,4 +1,4 @@
-/// @file Service.h
+/// @file service.h
 /// @author qbyss
 /// @date 27/01/2017
 ///
@@ -15,9 +15,6 @@ private:
 
     /// If true, it mean that the application is started as a service (fork)
     bool m_service;
-
-    /// Log file path (shouldn't be hardcoded ?)
-    std::string m_logFilePath = "/var/log/douane.log";
 
 public:
     /// Constructor

@@ -31,6 +31,7 @@ _OBJS=freedesktop/desktop_file.o \
 	socket.o \
 	thread.o \
 	service.o \
+	log.o \
 	tools.o
 
 
