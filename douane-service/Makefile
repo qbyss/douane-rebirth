@@ -2,7 +2,7 @@ DAEMON_VERSION=$(shell cat VERSION)
 
 CC=g++
 PKGCONFIG=`pkg-config --cflags --libs liblog4cxx dbus-c++-1`
-CFLAGS=-pedantic -Wall -W -g $(PKGCONFIG) -DDOUANE_VERSION=\"$(DAEMON_VERSION)\"
+CFLAGS=-pedantic -Wall -W $(PKGCONFIG) -DDOUANE_VERSION=\"$(DAEMON_VERSION)\"
 LDFLAGS=$(PKGCONFIG) -lboost_signals -lboost_system -lboost_filesystem -lboost_regex -lcrypto -lpthread
 
 INSTALL=/usr/bin/install -c
@@ -35,8 +35,10 @@ _OBJS=freedesktop/desktop_file.o \
 	tools.o
 
 
-
 all: $(EXEC)
+
+debug: CFLAGS += -DDEBUG -g
+debug: $(EXEC)
 
 $(EXEC): $(OBJS)
 	$(CC) -o $(EXEC) $(OBJS) $(LDFLAGS)
