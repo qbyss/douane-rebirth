@@ -161,7 +161,7 @@ void do_from_options(std::string option, const char * optarg)
 
 int main(int argc, char * argv[])
 {
-    Log l();
+    Log l(true);
     Service *s = new Service();
 
     // CTRL + C catcher
@@ -182,7 +182,7 @@ int main(int argc, char * argv[])
     {"log-file",  required_argument, 0, 'l'},
     {"debug",     no_argument      , 0, 'D'},
     {0,0,0,0}
-  };
+};
   int option_index = 0;
   while ((c = getopt_long(argc, argv, "dvh:l:D", long_options, &option_index)) != -1)
   {

@@ -5,6 +5,8 @@
 /// @brief Log implementation
 ///
 
+#include <iostream>
+
 // Log4cxx includes
 #include <log4cxx/logger.h>
 #include <log4cxx/helpers/pool.h>
@@ -15,15 +17,10 @@
 #include "log.h"
 
 // Initialize the logger for the current file
-log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("Service");
+log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("Log");
 
 Log::Log(const bool debug) : m_debug(debug)
 {
-	/*
-	**  log4cxx configuration
-	*
-	*  Appending logs to the file /var/log/douane.log
-	*/
 	log4cxx::PatternLayoutPtr pattern = new log4cxx::PatternLayout(
 	  this->m_debug ? "%d{dd/MM/yyyy HH:mm:ss} | %5p | [%F::%c:%L]: %m%n" : "%d{dd/MM/yyyy HH:mm:ss} %5p: %m%n"
 	);
@@ -38,7 +35,6 @@ Log::Log(const bool debug) : m_debug(debug)
 	fileAppender->activateOptions(pool);
 	log4cxx::BasicConfigurator::configure(log4cxx::AppenderPtr(fileAppender));
 	log4cxx::Logger::getRootLogger()->setLevel(this->m_debug ? log4cxx::Level::getDebug() : log4cxx::Level::getInfo());
-
 }
 
 Log::~Log()

@@ -14,7 +14,7 @@ private:
 	bool m_debug;
 
 	/// Log file path (shouldn't be hardcoded ?)
-	std::string m_logFilePath = "/var/log/douane.log";
+	std::string m_logFilePath = "d.log"; // "/var/log/douane.log";
 public:
 	/// Initialize log4cxx
 	/// @param debug If true, log4cxx will be in debug mode
