@@ -27,8 +27,8 @@
 
 // Daemon flags and paths
 bool          enabled_debug = false;
-bool          has_to_daemonize = false;
-bool          has_to_write_pid_file = false;
+bool          service_mode = false;
+//bool          has_to_write_pid_file = false;
 const char *  pid_file_path = "/var/run/douaned.pid";
 const char *  log_file_path = "/var/log/douane.log";
 
@@ -57,7 +57,7 @@ void handler(int sig)
 *
 *  This is executed when passing argument -d
 */
-void do_daemonize(void)
+void do_service(void)
 {
   // Create child process
   switch(fork())
@@ -114,7 +114,10 @@ void do_help(void)
 ** Create the PID file and write the PID
 *
 *  This is executed when passing argument -p
+* Already done by the init.d, useful ?
 */
+
+/*
 void do_pidfile(const char * path)
 {
   std::ofstream pid_file;
@@ -127,23 +130,24 @@ void do_pidfile(const char * path)
   pid_file << getpid() << std::endl;
   pid_file.close();
 }
+*/
 
 void do_from_options(std::string option, const char * optarg)
 {
   if (option == "daemon")
   {
-    has_to_daemonize = true;
+    service_mode = true;
   } else if (option == "version")
   {
     do_version();
   } else if (option == "help")
   {
     do_help();
-  } else if (option == "pid-file")
-  {
-    has_to_write_pid_file = true;
-    if (optarg)
-      pid_file_path = optarg;
+  //} else if (option == "pid-file")
+  //{
+  //  has_to_write_pid_file = true;
+  //  if (optarg)
+  //    pid_file_path = optarg;
   } else if (option == "log-file")
   {
     if (optarg)
@@ -168,7 +172,7 @@ int main(int argc, char * argv[])
   int c;
   const struct option long_options[] =
   {
-    {"daemon",    no_argument,       0, 'd'},
+    {"service",    no_argument,       0, 's'},
     {"version",   no_argument,       0, 'v'},
     {"help",      no_argument,       0, 'h'},
     {"pid-file",  optional_argument, 0, 'p'},
@@ -177,15 +181,15 @@ int main(int argc, char * argv[])
     {0,0,0,0}
   };
   int option_index = 0;
-  while ((c = getopt_long(argc, argv, "dvhp:l:D", long_options, &option_index)) != -1)
+  while ((c = getopt_long(argc, argv, "dvh:l:D", long_options, &option_index)) != -1)
   {
     switch (c)
     {
       case 0:
         do_from_options(long_options[option_index].name, optarg);
         break;
-      case 'd':
-        do_from_options("daemon", optarg);
+      case 's':
+        do_from_options("service", optarg);
         break;
       case 'v':
         do_from_options("version", optarg);
@@ -193,9 +197,9 @@ int main(int argc, char * argv[])
       case 'h':
         do_from_options("help", optarg);
         break;
-      case 'p':
-        do_from_options("pid-file", optarg);
-        break;
+      //case 'p':
+      //  do_from_options("pid-file", optarg);
+      //  break;
       case 'l':
         do_from_options("log-file", optarg);
         break;
@@ -219,10 +223,12 @@ int main(int argc, char * argv[])
   log4cxx::PatternLayoutPtr pattern = new log4cxx::PatternLayout(
     enabled_debug ? "%d{dd/MM/yyyy HH:mm:ss} | daemon | %5p | [%F::%c:%L]: %m%n" : "%d{dd/MM/yyyy HH:mm:ss} %5p: %m%n"
   );
+
   log4cxx::FileAppender * fileAppender = new log4cxx::FileAppender(
     log4cxx::LayoutPtr(pattern),
     log_file_path
   );
+
   log4cxx::helpers::Pool pool;
   fileAppender->activateOptions(pool);
   log4cxx::BasicConfigurator::configure(log4cxx::AppenderPtr(fileAppender));
@@ -233,22 +239,24 @@ int main(int argc, char * argv[])
 
   try {
     // Daemonize the application if --daemon argument is passed
-    if (has_to_daemonize)
+    if (service_mode)
     {
-      do_daemonize();
-      LOG4CXX_INFO(logger, "A daemon process has been created");
+      do_service();
+      LOG4CXX_INFO(logger, "A service has been created");
     }
 
-    if (has_to_write_pid_file)
-    {
-      do_pidfile(pid_file_path);
-      LOG4CXX_INFO(logger, "A pid file with PID " << getpid() << " is created at " << pid_file_path);
-    }
+    //if (has_to_write_pid_file)
+    //{
+    //  do_pidfile(pid_file_path);
+    //  LOG4CXX_INFO(logger, "A pid file with PID " << getpid() << " is created at " << pid_file_path);
+    //}
 
     LOG4CXX_INFO(logger, "The log file is " << log_file_path);
 
     if (enabled_debug)
-      LOG4CXX_DEBUG(logger, "The debug mode is enabled");
+    {
+      LOG4CXX_DEBUG(logger, "Debug mode is enabled");
+    }
 
     /*
     ** ~~~~ Global class initializations ~~~~
@@ -312,10 +320,10 @@ int main(int argc, char * argv[])
     *  The NetlinkListener is the core of the daemon.
     *  This means that the following start() method is the method which will runs until the daemon has to die.
     */
-    LOG4CXX_DEBUG(logger, "Starting to listen to LKM. Daemon is alive!");
+    LOG4CXX_DEBUG(logger, "Starting to listen to LKM. Service running.");
     netlink_listener.start();
 
-    LOG4CXX_DEBUG(logger, "Daemon is dying...");
+    LOG4CXX_DEBUG(logger, "Service exit");
     return EXIT_SUCCESS;
 
   } catch(const std::exception &e)
