@@ -3,7 +3,7 @@
 ProcessesManager::ProcessesManager(void)
 : logger(log4cxx::Logger::getLogger("ProcessesManager"))
 {
-
+    LOG4CXX_DEBUG(logger, "Initializing ProcessesManager");
 }
 
 ProcessesManager::~ProcessesManager(void)

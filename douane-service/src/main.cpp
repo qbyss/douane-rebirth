@@ -41,16 +41,16 @@ log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("Main");
 *  This is needed in order to access it from the main() method
 *  but also from others like handler()
 */
-NetlinkListener netlink_listener;
+NetlinkListener netlink_listener;   // TODO: Better in dynamic ?
 
 /*
 ** Handle the exit signal
 */
 void handler(int sig)
 {
-  LOG4CXX_INFO(logger, "Exiting Douane daemon with signal " << sig << "...");
-  netlink_listener.say_goodbye();
-  exit(1);
+    LOG4CXX_INFO(logger, "Exiting Douane with signal " << sig << "...");
+    netlink_listener.say_goodbye();
+    exit(1);
 }
 
 /*
@@ -96,7 +96,7 @@ void do_service(void)
 */
 void do_version(void)
 {
-  std::cout << DOUANE_VERSION << std::endl;
+  std::cout << "douane-rebirth version " << DOUANE_VERSION << std::endl;
   exit(1);
 }
 
@@ -135,10 +135,11 @@ void do_pidfile(const char * path)
 
 void do_from_options(std::string option, const char * optarg)
 {
-  if (option == "daemon")
+  if (option == "service")
   {
     service_mode = true;
-  } else if (option == "version")
+  }
+  else if (option == "version")
   {
     do_version();
   } else if (option == "help")
@@ -162,7 +163,7 @@ void do_from_options(std::string option, const char * optarg)
 int main(int argc, char * argv[])
 {
     Service *s = new Service();
-    
+
   // CTRL + C catcher
   signal(SIGINT, handler);
 
@@ -178,7 +179,6 @@ int main(int argc, char * argv[])
     {"service",    no_argument,       0, 's'},
     {"version",   no_argument,       0, 'v'},
     {"help",      no_argument,       0, 'h'},
-    {"pid-file",  optional_argument, 0, 'p'},
     {"log-file",  required_argument, 0, 'l'},
     {"debug",     no_argument      , 0, 'D'},
     {0,0,0,0}
@@ -236,9 +236,6 @@ int main(int argc, char * argv[])
   fileAppender->activateOptions(pool);
   log4cxx::BasicConfigurator::configure(log4cxx::AppenderPtr(fileAppender));
   log4cxx::Logger::getRootLogger()->setLevel(enabled_debug ? log4cxx::Level::getDebug() : log4cxx::Level::getInfo());
-  /*
-  **
-  */
 
   try {
     // Daemonize the application if --daemon argument is passed
@@ -264,18 +261,13 @@ int main(int argc, char * argv[])
     /*
     ** ~~~~ Global class initializations ~~~~
     */
-    LOG4CXX_DEBUG(logger, "Initializing DesktopFiles");
+
     DesktopFiles          desktop_files;
-
-    LOG4CXX_DEBUG(logger, "Initializing RulesManager");
     RulesManager          rules_manager;
-
-    LOG4CXX_DEBUG(logger, "Initializing ProcessesManager");
     ProcessesManager      processes_manager;
     processes_manager.set_desktop_files(&desktop_files);
     netlink_listener.set_processes_manager(&processes_manager);
 
-    LOG4CXX_DEBUG(logger, "Initializing DBusServer");
     DBusServer            dbus_server;
     dbus_server.set_rules_manager(&rules_manager);
     /*

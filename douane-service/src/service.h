@@ -11,10 +11,13 @@ class Service
 {
 private:
     /// If true, debug mode is enabled
-    bool debug;
+    bool m_debug;
 
     /// If true, it mean that the application is started as a service (fork)
-    bool service;
+    bool m_service;
+
+    /// Log file path (shouldn't be hardcoded ?)
+    std::string m_logFilePath = "/var/log/douane.log";
 
 public:
     /// Constructor

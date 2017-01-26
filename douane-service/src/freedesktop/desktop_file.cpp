@@ -4,8 +4,9 @@ DesktopFile::DesktopFile(const boost::filesystem::path& path)
 : path(path),
   logger(log4cxx::Logger::getLogger("DesktopFile"))
 {
-  LOG4CXX_DEBUG(logger, "Processing file " << this->path << " ...");
-  this->parse_desktop_file();
+    LOG4CXX_DEBUG(logger, "Initializing DesktopFiles");
+    LOG4CXX_DEBUG(logger, "Processing file " << this->path << " ...");
+    this->parse_desktop_file();
 }
 
 DesktopFile::~DesktopFile(void)

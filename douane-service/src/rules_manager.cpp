@@ -3,8 +3,9 @@
 RulesManager::RulesManager(void)
 : logger(log4cxx::Logger::getLogger("RulesManager"))
 {
-  this->load_rules_from_file();
-  LOG4CXX_DEBUG(logger, "RulesManager initialization done");
+    LOG4CXX_DEBUG(logger, "Initializing RulesManager");
+    this->load_rules_from_file();
+    LOG4CXX_DEBUG(logger, "RulesManager initialization done");
 }
 
 RulesManager::~RulesManager(void)
