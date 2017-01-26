@@ -30,6 +30,7 @@ _OBJS=freedesktop/desktop_file.o \
 	rules_manager.o \
 	socket.o \
 	thread.o \
+	service.o \
 	tools.o
 
 

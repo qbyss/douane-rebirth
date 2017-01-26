@@ -18,6 +18,7 @@
 #include "rules_manager.h"
 #include "processes_manager.h"
 #include "dbus/dbus_server.h"
+#include "service.h"
 
 // In the case the Makefile didn't initialized the VERSION variable
 // this code initialize it to "UNKNOWN"
@@ -160,6 +161,8 @@ void do_from_options(std::string option, const char * optarg)
 
 int main(int argc, char * argv[])
 {
+    Service *s = new Service();
+    
   // CTRL + C catcher
   signal(SIGINT, handler);
 
@@ -324,7 +327,9 @@ int main(int argc, char * argv[])
     netlink_listener.start();
 
     LOG4CXX_DEBUG(logger, "Service exit");
-    return EXIT_SUCCESS;
+
+    return s->run();
+    //return EXIT_SUCCESS;
 
   } catch(const std::exception &e)
   {
