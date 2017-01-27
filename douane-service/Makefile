@@ -37,7 +37,7 @@ _OBJS=freedesktop/desktop_file.o \
 
 all: $(EXEC)
 
-debug: CFLAGS += -DDEBUG -g
+debug: CFLAGS += -DDEBUG -g -Wno-unused-parameter
 debug: $(EXEC)
 
 $(EXEC): $(OBJS)
