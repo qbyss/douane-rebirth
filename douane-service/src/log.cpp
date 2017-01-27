@@ -29,7 +29,7 @@ Log::Log()
 
 Log::~Log()
 {
-
+	delete m_fileAppender;
 }
 
 void Log::init()
@@ -39,15 +39,14 @@ void Log::init()
 	  this->m_debug ? "%d{dd/MM/yyyy HH:mm:ss} | %5p | [%F::%c:%L]: %m%n" : "%d{dd/MM/yyyy HH:mm:ss} %5p: %m%n"
 	);
 
-	// TODO Check where is the delete
-	log4cxx::FileAppender * fileAppender = new log4cxx::FileAppender(
+	m_fileAppender = new log4cxx::FileAppender(
 	  log4cxx::LayoutPtr(pattern),
 	  m_logFilePath
 	);
 
 	log4cxx::helpers::Pool pool;
-	fileAppender->activateOptions(pool);
-	log4cxx::BasicConfigurator::configure(log4cxx::AppenderPtr(fileAppender));
+	m_fileAppender->activateOptions(pool);
+	log4cxx::BasicConfigurator::configure(log4cxx::AppenderPtr(m_fileAppender));
 	log4cxx::Logger::getRootLogger()->setLevel(this->m_debug ? log4cxx::Level::getDebug() : log4cxx::Level::getInfo());
 
 }

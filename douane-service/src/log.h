@@ -12,6 +12,8 @@
 class Log
 {
 private:
+	log4cxx::FileAppender * m_fileAppender;
+
 	/// If true, debug mode is on
 	bool m_debug;
 
