@@ -3,7 +3,7 @@
 NetlinkListener::NetlinkListener(void)
 : logger(log4cxx::Logger::getLogger("NetlinkListener"))
 {
-
+    LOG4CXX_DEBUG(logger, "Starting to listen to LKM. Service running.");
 }
 
 NetlinkListener::~NetlinkListener(void)
