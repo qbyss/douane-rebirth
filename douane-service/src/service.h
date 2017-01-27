@@ -21,6 +21,8 @@ private:
     /// If true, it mean that the application is started as a service (fork)
     bool m_service;
 
+    NetlinkListener netlink_listener;
+
 public:
     /// Constructor
     Service();
@@ -30,6 +32,9 @@ public:
 
     /// Run the application
     int run();
+
+    /// Stop the application
+    int stop(const int sig);
 
     /// Set the service mode
     inline void setServiceMode(const bool service)

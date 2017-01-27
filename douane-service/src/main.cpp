@@ -27,19 +27,14 @@
 #define DOUANE_VERSION "UNKNOWN"
 #endif
 
-/* Global initialization
-**
-*  This is needed in order to access it from the main() method
-*  but also from others like handler()
-*/
-NetlinkListener netlink_listener;   // TODO: Better in dynamic ?
+// Global initialization
+// The service needs to be global because of the signal handler
+Service *s=nullptr;
 
 /// Handle exit signal
 void handler(int sig)
 {
-    // LOG4CXX_INFO(logger, "Exiting Douane with signal " << sig << "...");
-    netlink_listener.say_goodbye();
-    exit(1);
+    exit(s->stop(sig));
 }
 
 
@@ -129,86 +124,19 @@ int main(int argc, char * argv[])
     }
 
     try {
-      // Initialize the logger
-      l->init();
+        // Initialize the logger
+        l->init();
 
-      // Fork the application if the service mod is enabled
-      if (s->getServiceMode())
-      {
+        // Fork the application if the service mod is enabled
+        if (s->getServiceMode())
+        {
           do_service();
-        //   LOG4CXX_INFO(logger, "A service has been created");
-      }
+        }
 
-    /*
-    ** ~~~~ Global class initializations ~~~~
-    */
-
-    DesktopFiles          desktop_files;
-    RulesManager          rules_manager;
-    ProcessesManager      processes_manager;
-    processes_manager.set_desktop_files(&desktop_files);
-    netlink_listener.set_processes_manager(&processes_manager);
-
-    DBusServer            dbus_server;
-    dbus_server.set_rules_manager(&rules_manager);
-
-    /*
-    ** ~~~~ Signal connexions ~~~~
-    */
-
-    // LOG4CXX_DEBUG(logger, "Connecting objects");
-    // When NetlinkListener emit connected_to_kernel_module signal then fire RulesManager::push_rules
-    netlink_listener.on_connected_to_kernel_module_connect(boost::bind(&RulesManager::push_rules, &rules_manager));
-
-    // When NetlinkMessageHandler emit new_network_activity signal then fire RulesManager::lookup_activity
-    NetlinkMessageHandler::on_new_network_activity_connect(boost::bind(&RulesManager::lookup_activity, &rules_manager, _1));
-
-    // When RulesManager emit new_unknown_activity signal then fire the DBusServer signal NewActivityToBeValidated
-    rules_manager.on_new_unknown_activity_connect(boost::bind(&DBusServer::signal_new_unknown_activity, &dbus_server, _1));
-
-    // When D-Bus Douane emit new_rule_received signal then fire RulesManager::make_rule_from
-    Douane::on_new_rule_received_connect(boost::bind(&RulesManager::make_rule_from, &rules_manager, _1, _2));
-
-    // When RulesManager emit new_network_activity signal then fire NetlinkListener::send_rule
-    rules_manager.on_new_rule_created_connect(boost::bind(&NetlinkListener::send_rule, &netlink_listener, _1));
-
-    // When RulesManager emit rule_deleted signal then fire NetlinkListener::delete_rule
-    rules_manager.on_rule_deleted_connect(boost::bind(&NetlinkListener::delete_rule, &netlink_listener, _1));
-    //
-    // TODO: Emit a signal to the external process which will popup a dialog to ignore the activity
-    //rules_manager.on_rule_deleted_connect(boost::bind(&GtkQuestionWindow::forget_unknown_application, &douane_external_dialog, _1));
-
-    // Listener send all received activity to the D-Bus server so that it can fire a signal
-    NetlinkMessageHandler::on_new_network_activity_connect(boost::bind(&DBusServer::new_network_activity, &dbus_server, _1));
-    /*
-    **/
-
-    /*
-    ** ~~~~ Daemon starting ~~~~
-    */
-    // D-Bus server runs in a thread
-    dbus_server.start();
-
-    /* Connect and listen to the Linux Kernel Module
-    **
-    *  The NetlinkListener is the core of the daemon.
-    *  This means that the following start() method is the method which will runs until the daemon has to die.
-    */
-    netlink_listener.start();
-
-    // LOG4CXX_DEBUG(logger, "Service exit");
-
-    return s->run();
-    //return EXIT_SUCCESS;
-
-  } catch(const std::exception &e)
+        return s->run();
+  }
+  catch(...)
   {
-    // LOG4CXX_ERROR(logger, e.what());
-  } catch (const std::string &e)
-  {
-    // LOG4CXX_ERROR(logger, e);
-  } catch(...)
-  {
-    // LOG4CXX_ERROR(logger, "Unknown error occured!");
+      std::cerr << "Unhandled exception" << std::endl;
   }
 }
