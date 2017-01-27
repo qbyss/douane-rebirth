@@ -27,14 +27,6 @@
 #define DOUANE_VERSION "UNKNOWN"
 #endif
 
-// Daemon flags and paths
-bool          enabled_debug = false;
-bool          service_mode = false;
-//bool          has_to_write_pid_file = false;
-const char *  pid_file_path = "/var/run/douaned.pid";
-const char *  log_file_path = "/var/log/douane.log";
-
-
 /* Global initialization
 **
 *  This is needed in order to access it from the main() method
@@ -42,9 +34,7 @@ const char *  log_file_path = "/var/log/douane.log";
 */
 NetlinkListener netlink_listener;   // TODO: Better in dynamic ?
 
-/*
-** Handle the exit signal
-*/
+/// Handle exit signal
 void handler(int sig)
 {
     // LOG4CXX_INFO(logger, "Exiting Douane with signal " << sig << "...");
@@ -52,11 +42,7 @@ void handler(int sig)
     exit(1);
 }
 
-/*
-** Create a daemon from the current instance
-*
-*  This is executed when passing argument -d
-*/
+
 void do_service(void)
 {
   // Create child process
@@ -64,7 +50,7 @@ void do_service(void)
   {
     case -1:
     {
-      std::cerr << "Unable to create daemon process" << std::endl;
+      std::cerr << "Unable to create service process" << std::endl;
       exit(-1);
     }
     case 0:
@@ -88,80 +74,9 @@ void do_service(void)
   }
 }
 
-/*
-** Print the daemon version
-*
-*  This is executed when passing argument -v
-*/
-void do_version(void)
-{
-  std::cout << "douane-rebirth version " << DOUANE_VERSION << std::endl;
-  exit(1);
-}
-
-/*
-** Print the help menu
-*
-*  This is executed when passing argument -h
-*/
-void do_help(void)
-{
-  std::cout << "TODO: Write help message" << std::endl;
-  exit(1);
-}
-
-/*
-** Create the PID file and write the PID
-*
-*  This is executed when passing argument -p
-* Already done by the init.d, useful ?
-*/
-
-/*
-void do_pidfile(const char * path)
-{
-  std::ofstream pid_file;
-  pid_file.open(path);
-  if(!pid_file.is_open())
-  {
-    printf("Unable to create the PID file: %s\n", strerror(errno));
-    exit(-1);
-  }
-  pid_file << getpid() << std::endl;
-  pid_file.close();
-}
-*/
-
-void do_from_options(std::string option, const char * optarg)
-{
-  if (option == "service")
-  {
-    service_mode = true;
-  }
-  else if (option == "version")
-  {
-    do_version();
-  } else if (option == "help")
-  {
-    do_help();
-  //} else if (option == "pid-file")
-  //{
-  //  has_to_write_pid_file = true;
-  //  if (optarg)
-  //    pid_file_path = optarg;
-  } else if (option == "log-file")
-  {
-    if (optarg)
-      log_file_path = optarg;
-  } else if (option == "debug")
-  {
-    enabled_debug = true;
-  }
-}
-
 int main(int argc, char * argv[])
 {
-    Log l(true);
+    Log *l = new Log();
     Service *s = new Service();
 
     // CTRL + C catcher
@@ -170,74 +85,59 @@ int main(int argc, char * argv[])
     // Force the nice value to -20 (urgent)
     nice(-20);
 
-  /*
-  **  Application options handling with long options support.
-  */
-  int c;
-  const struct option long_options[] =
-  {
-    {"service",    no_argument,       0, 's'},
-    {"version",   no_argument,       0, 'v'},
-    {"help",      no_argument,       0, 'h'},
-    {"log-file",  required_argument, 0, 'l'},
-    {"debug",     no_argument      , 0, 'D'},
-    {0,0,0,0}
-};
-  int option_index = 0;
-  while ((c = getopt_long(argc, argv, "dvh:l:D", long_options, &option_index)) != -1)
-  {
-    switch (c)
+    // Handle arguments
+    int c;
+    const struct option long_options[] =
     {
-      case 0:
-        do_from_options(long_options[option_index].name, optarg);
-        break;
-      case 's':
-        do_from_options("service", optarg);
-        break;
-      case 'v':
-        do_from_options("version", optarg);
-        break;
-      case 'h':
-        do_from_options("help", optarg);
-        break;
-      //case 'p':
-      //  do_from_options("pid-file", optarg);
-      //  break;
-      case 'l':
-        do_from_options("log-file", optarg);
-        break;
-      case 'D':
-        do_from_options("debug", optarg);
-        break;
-      case '?':
-        std::cout << std::endl << "To get help execute me with --help" << std::endl;
-        exit(1);
-        break;
-      default:
-        printf("?? getopt returned character code 0%o ??\n", c);
-    }
-  }
+        {"service",    no_argument,       0, 's'},
+        {"version",   no_argument,       0, 'v'},
+        {"help",      no_argument,       0, 'h'},
+        {"log-file",  required_argument, 0, 'l'},
+        {"debug",     no_argument      , 0, 'D'},
+        {0,0,0,0}
+    };
 
-  try {
-    // Daemonize the application if --daemon argument is passed
-    if (service_mode)
+    int option_index = 0;
+    while ((c = getopt_long(argc, argv, "dvh:l:D", long_options, &option_index)) != -1)
     {
-      do_service();
-    //   LOG4CXX_INFO(logger, "A service has been created");
+        switch (c)
+        {
+            case 's':
+                // s->setServiceMode(true);
+                break;
+            case 'v':
+                std::cout << "douane-rebirth version " << DOUANE_VERSION << std::endl;
+                exit(EXIT_SUCCESS);
+                break;
+            case 'h':
+                std::cout << "Not help available at this moment" << std::endl;
+                exit(EXIT_SUCCESS);
+                break;
+            case 'l':
+                l->setLogFile(optarg);
+                break;
+            case 'D':
+                l->setDebug(true);
+                break;
+            case '?':
+                std::cout << std::endl << "To get help execute me with --help" << std::endl;
+                exit(1);
+                break;
+            default:
+                printf("?? getopt returned character code 0%o ??\n", c);
+        }
     }
 
-    //if (has_to_write_pid_file)
-    //{
-    //  do_pidfile(pid_file_path);
-    //  LOG4CXX_INFO(logger, "A pid file with PID " << getpid() << " is created at " << pid_file_path);
-    //}
+    try {
+      // Initialize the logger
+      l->init();
 
-    // LOG4CXX_INFO(logger, "The log file is " << log_file_path);
-
-    if (enabled_debug)
-    {
-    //   LOG4CXX_DEBUG(logger, "Debug mode is enabled");
-    }
+      // Fork the application if the service mod is enabled
+      if (s->getServiceMode())
+      {
+          do_service();
+        //   LOG4CXX_INFO(logger, "A service has been created");
+      }
 
     /*
     ** ~~~~ Global class initializations ~~~~
@@ -251,8 +151,6 @@ int main(int argc, char * argv[])
 
     DBusServer            dbus_server;
     dbus_server.set_rules_manager(&rules_manager);
-    /*
-    **/
 
     /*
     ** ~~~~ Signal connexions ~~~~
@@ -296,7 +194,6 @@ int main(int argc, char * argv[])
     *  The NetlinkListener is the core of the daemon.
     *  This means that the following start() method is the method which will runs until the daemon has to die.
     */
-    // LOG4CXX_DEBUG(logger, "Starting to listen to LKM. Service running.");
     netlink_listener.start();
 
     // LOG4CXX_DEBUG(logger, "Service exit");

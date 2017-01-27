@@ -17,6 +17,7 @@
 
 
 Service::Service()
+: logger(log4cxx::Logger::getLogger("Service"))
 {
     /// TODO: Entry point
 
@@ -29,5 +30,6 @@ Service::~Service()
 
 int Service::run()
 {
+    LOG4CXX_DEBUG(logger, "Service initialization...");
     return EXIT_SUCCESS;
 }

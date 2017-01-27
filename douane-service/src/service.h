@@ -7,9 +7,14 @@
 #ifndef DOUANE_SERVICE_H
 #define DOUANE_SERVICE_H
 
+#include <log4cxx/logger.h>
+
 class Service
 {
 private:
+    /// Logger
+    log4cxx::LoggerPtr logger;
+
     /// If true, debug mode is enabled
     bool m_debug;
 
@@ -23,8 +28,20 @@ public:
     /// Destructor
     virtual ~Service();
 
-    /// Run the service
+    /// Run the application
     int run();
+
+    /// Set the service mode
+    inline void setServiceMode(const bool service)
+    {
+        m_service = service;
+    }
+
+    // TODO: Maybe useless in the future
+    inline bool getServiceMode()
+    {
+        return m_service;
+    }
 };
 
 #endif
